@@ -1,0 +1,169 @@
+MongoDB and NoSQL Assignment: Library System
+1. Introduction
+
+MongoDB is a popular NoSQL database that stores data in flexible, JSON-like documents. Unlike traditional relational databases, NoSQL systems allow dynamic schemas, making them ideal for applications that need to scale and evolve rapidly. This assignment demonstrates MongoDB fundamentals using a library system as a case study.
+
+2. Installation and Configuration
+
+Download MongoDB from MongoDB Official Website
+.
+
+Install MongoDB following your OS instructions (Windows/Linux/macOS).
+
+Start MongoDB server:
+
+mongod
+
+Connect to MongoDB shell:
+
+mongo
+
+Optional: Use MongoDB Compass (GUI) for visual management.
+
+3. Data Modeling in MongoDB
+
+In a library system, we can create the following collections:
+
+books
+
+authors
+
+genres
+
+Each collection stores documents instead of tables and rows.
+
+Example Documents:
+
+Authors Collection
+
+{
+  "_id": 1,
+  "name": "J.K. Rowling",
+  "birth_year": 1965,
+  "nationality": "British"
+}
+
+Genres Collection
+
+{
+  "_id": 1,
+  "name": "Fantasy",
+  "description": "Fiction with magical elements"
+}
+
+Books Collection
+
+{
+  "_id": 1,
+  "title": "Harry Potter and the Sorcerer's Stone",
+  "author_id": 1,
+  "genre_id": 1,
+  "published_year": 1997,
+  "copies_available": 5
+}
+4. CRUD Operations
+4.1 Create (Insert Documents)
+use libraryDB
+
+// Insert authors
+db.authors.insertMany([
+  { _id: 1, name: "J.K. Rowling", birth_year: 1965, nationality: "British" },
+  { _id: 2, name: "George Orwell", birth_year: 1903, nationality: "British" }
+]);
+
+// Insert genres
+db.genres.insertMany([
+  { _id: 1, name: "Fantasy", description: "Fiction with magical elements" },
+  { _id: 2, name: "Dystopian", description: "Fiction depicting an oppressive society" }
+]);
+
+// Insert books
+db.books.insertMany([
+  { _id: 1, title: "Harry Potter and the Sorcerer's Stone", author_id: 1, genre_id: 1, published_year: 1997, copies_available: 5 },
+  { _id: 2, title: "1984", author_id: 2, genre_id: 2, published_year: 1949, copies_available: 3 }
+]);
+4.2 Read (Query Documents)
+// Find all books
+db.books.find().pretty()
+
+// Find books by a specific author
+db.books.find({ author_id: 1 }).pretty()
+
+// Find authors born after 1950
+db.authors.find({ birth_year: { $gt: 1950 } }).pretty()
+
+// Join books with authors (lookup)
+db.books.aggregate([
+  {
+    $lookup: {
+      from: "authors",
+      localField: "author_id",
+      foreignField: "_id",
+      as: "author_info"
+    }
+  }
+]).pretty()
+4.3 Update (Modify Documents)
+// Update number of copies for a book
+db.books.updateOne(
+  { _id: 1 },
+  { $set: { copies_available: 6 } }
+);
+4.4 Delete (Remove Documents)
+// Remove a book by ID
+db.books.deleteOne({ _id: 2 });
+5. Queries for Library System
+
+Find all Fantasy books:
+
+db.books.aggregate([
+  {
+    $lookup: {
+      from: "genres",
+      localField: "genre_id",
+      foreignField: "_id",
+      as: "genre_info"
+    }
+  },
+  { $match: { "genre_info.name": "Fantasy" } }
+]).pretty()
+
+Find authors with more than 1 book (advanced aggregation):
+
+db.books.aggregate([
+  { $group: { _id: "$author_id", total_books: { $sum: 1 } } },
+  { $match: { total_books: { $gt: 1 } } },
+  {
+    $lookup: {
+      from: "authors",
+      localField: "_id",
+      foreignField: "_id",
+      as: "author_info"
+    }
+  }
+]).pretty()
+6. Reflection on NoSQL Importance
+
+Flexible Schema: Allows storage of complex, nested, or evolving data structures without rigid table constraints.
+
+Scalability: MongoDB supports horizontal scaling (sharding) for high-volume applications.
+
+Performance: Optimized for read-heavy and write-heavy workloads, often used in real-time applications.
+
+Modern Applications: Popular in social media apps, e-commerce, gaming, IoT systems, and content management platforms where dynamic data is common.
+
+NoSQL databases like MongoDB simplify development by enabling quick iteration, schema evolution, and easy integration with modern web applications.
+
+7. Conclusion
+
+This assignment demonstrated:
+
+Setting up MongoDB
+
+Designing collections for a library system
+
+Performing CRUD operations and queries
+
+Understanding NoSQL benefits for flexible, scalable, modern applications
+
+The library system example shows how MongoDB can efficiently store, query, and manage data in a way traditional relational databases may struggle with.
